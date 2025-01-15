@@ -19,6 +19,7 @@ ctk.set_default_color_theme("blue")
 class CorrosionDatabaseApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.formula = None  # 定义为类的实例属性
         self.title("腐蚀数据分析系统")
         self.geometry("1600x850")
         self.minsize(800, 600)
