@@ -1,7 +1,7 @@
 #第二个项目内容
 #注释模块功能一般在代码前面
 
-
+import random
 import customtkinter as ctk
 import tkinter as tk
 from tkinter import ttk

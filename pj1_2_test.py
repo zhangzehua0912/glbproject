@@ -1,7 +1,7 @@
 #第二个项目内容
 #注释模块功能一般在代码前面
 #原本的第一版
-
+import random
 
 import customtkinter as ctk
 from tkinter import ttk
@@ -19,7 +19,7 @@ ctk.set_default_color_theme("blue")
 class CorrosionDatabaseApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.formula = None  # 定义为类的实例属性
+        self.formula_num = None  # 定义为类的实例属性
         self.title("腐蚀数据分析系统")
         self.geometry("1600x800")
         self.minsize(800, 600)
@@ -121,27 +121,32 @@ class CorrosionDatabaseApp(ctk.CTk):
         title_label = ctk.CTkLabel(self.main_frame, text="数据分析中心", font=("黑体", 24))
         title_label.pack(pady=10)
 
+
         # 腐蚀规律类型选择###########################以下#############################################
         select_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         select_frame.pack(pady=10)
+
         rule_label = ctk.CTkLabel(select_frame, text="腐蚀规律类:")
         rule_label.pack(side="left", padx=10)
-        rule_combobox = ctk.CTkComboBox(select_frame, values=["请选择", "类型1", "类型2", "类型3"])  # 修改 后面通过if来选择
-        rule_value=rule_combobox.get()
+        rule_combobox = ctk.CTkComboBox(select_frame, values=["请选择", "类型1", "类型2", "类型3"])
         rule_combobox.pack(side="left", padx=10)
+        rule_value=rule_combobox.get()#暂时还不会更新
+
 
         def on_formula_select(event=None):
-            if formula_combobox.get() == "自定义方程":
+            selected_formula = formula_combobox.get()
+            if selected_formula == "自定义方程":
                 custom_formula_combobox.configure(state="normal")  # 激活
             else:
                 custom_formula_combobox.configure(state="disabled")  # 禁用
+            self.formula_num = get_selection_value()# 更新 formula_num
 
         formula_label = ctk.CTkLabel(select_frame, text="腐蚀动力学方程:")
         formula_label.pack(side="left", padx=10)
         formula_combobox = ctk.CTkComboBox(select_frame,
-                                                values=["线性 x=At+B", "抛物线", "对数", "Tedmon", "自定义方程"],command=on_formula_select)
+                                                values=["线性 x=At+B", "抛物线", "对数", "Tedmon", "自定义方程"],command=lambda _:on_formula_select())
         formula_combobox.pack(side="left", padx=10)
-        selection_formula=formula_combobox.get()  #选择的公式
+        self.formula_num=formula_combobox.get()  #选择的公式
 
         custom_formula_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         custom_formula_frame.pack(pady=10)
@@ -150,9 +155,34 @@ class CorrosionDatabaseApp(ctk.CTk):
         custom_formula_label.pack(side="left", padx=10)
 
         custom_formula_combobox = ctk.CTkComboBox(custom_formula_frame,
-                                                       values=["3次幂", "4次幂", "5次幂", "6次幂", "10次幂",
-                                                               "自动选择"],state="disabled")
+                                                  values=["3次幂", "4次幂", "5次幂", "6次幂", "10次幂","自动选择"],
+                                                  state="disabled",command=lambda _:on_formula_select())
         custom_formula_combobox.pack(side="left", padx=10)
+
+        def get_selection_value():
+            selected_formula = formula_combobox.get()
+            if selected_formula == "线性 x=At+B":
+                return 1
+            elif selected_formula == "抛物线":
+                return 2
+            elif selected_formula == "对数":
+                return "ln"
+            elif selected_formula == "Tedmon":
+                return "Tedmon"
+            elif selected_formula == "自定义方程":
+                custom_formula = custom_formula_combobox.get()
+                custom_map = {
+                    "3次幂": 3,
+                    "4次幂": 4,
+                    "5次幂": 5,
+                    "6次幂": 6,
+                    "10次幂": 10,
+                    "自动选择": random.randint(11, 40)}
+                return custom_map.get(custom_formula, None)
+            return None  # 如果未选择有效值
+
+        self.formula_num = get_selection_value()
+
 
         # 腐蚀规律类型选择###########################以上#############################################
 
@@ -161,8 +191,6 @@ class CorrosionDatabaseApp(ctk.CTk):
         button_frame.pack(pady=20)
         analyze_button = ctk.CTkButton(button_frame, text="拟合/预测", fg_color="#508e54", command=self.perform_analysis)
         analyze_button.pack(side="left", padx=10)
-        # predict_button = ctk.CTkButton(button_frame, text="预测", fg_color="#b54747", command=self.perform_prediction)
-        # predict_button.pack(side="left", padx=10)
         # 拟合和预测按钮-以上########
 
         # 数据集相关
@@ -379,8 +407,7 @@ class CorrosionDatabaseApp(ctk.CTk):
 
 
     def perform_analysis(self):
-
-        print("跳转到页面3")
+        print("跳转到页面3",self.formula_num)
 
 ###################################################上面是第二页的功能##########################################################
 
