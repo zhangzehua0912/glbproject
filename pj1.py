@@ -155,10 +155,33 @@ class CorrosionDatabaseApp(ctk.CTk):
         manual_action_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         manual_action_frame.pack(pady=10)
 
+        def open_manual_input():#手动输入数据框
+            manual_window = ctk.CTkToplevel()
+            manual_window.title("手动输入数据")
+            manual_window.geometry("400x550")
+            manual_window.attributes('-topmost', True)  # 设置窗口始终置顶
+            input_frame = ctk.CTkFrame(manual_window, fg_color="transparent")
+            input_frame.pack(fill="both", expand=True, padx=20, pady=20)
+            # Input labels and fields
+            labels = ["时间1", "数据1", "时间2", "数据2", "时间3", "数据3", "时间4", "数据4", "备注"]
+            inputs = {}
+            for i, label in enumerate(labels):
+                lbl = ctk.CTkLabel(input_frame, text=label, font=("Arial", 12))
+                lbl.grid(row=i, column=0, padx=10, pady=5, sticky="w")
+                entry = ctk.CTkEntry(input_frame, width=200)
+                entry.grid(row=i, column=1, padx=10, pady=5)
+                inputs[label] = entry
+
+            # Submit button
+            submit_button = ctk.CTkButton(manual_window, text="提交", text_color="#FFFFFF", fg_color="#28A745",
+                                          hover_color="#218838", command=lambda: self.submit_manual_data(inputs))
+            submit_button.pack(pady=20)
+
         manual_input_button = ctk.CTkButton(manual_action_frame, text="手动输入", text_color="#FFFFFF",
                                             fg_color="#FFC107", hover_color="#E0A800",
-                                            command=self.open_manual_input)
+                                            command=open_manual_input)
         manual_input_button.grid(row=0, column=0, padx=10)
+
 
         self.delete_button = ctk.CTkButton(manual_action_frame, text="删除", text_color="#FFFFFF",
                                            fg_color="#DC3545", hover_color="#C82333",
@@ -181,27 +204,7 @@ class CorrosionDatabaseApp(ctk.CTk):
         self.page_label.grid(row=0, column=1, padx=10)
 
 
-    def open_manual_input(self):#手动输入数据框
-        manual_window = ctk.CTkToplevel()
-        manual_window.title("手动输入数据")
-        manual_window.geometry("400x550")
-        manual_window.attributes('-topmost', True)  # 设置窗口始终置顶
-        input_frame = ctk.CTkFrame(manual_window, fg_color="transparent")
-        input_frame.pack(fill="both", expand=True, padx=20, pady=20)
-        # Input labels and fields
-        labels = ["时间1", "数据1", "时间2", "数据2", "时间3", "数据3", "时间4", "数据4", "备注"]
-        inputs = {}
-        for i, label in enumerate(labels):
-            lbl = ctk.CTkLabel(input_frame, text=label, font=("Arial", 12))
-            lbl.grid(row=i, column=0, padx=10, pady=5, sticky="w")
-            entry = ctk.CTkEntry(input_frame, width=200)
-            entry.grid(row=i, column=1, padx=10, pady=5)
-            inputs[label] = entry
 
-        # Submit button
-        submit_button = ctk.CTkButton(manual_window, text="提交", text_color="#FFFFFF", fg_color="#28A745",
-                                      hover_color="#218838", command=lambda: self.submit_manual_data(inputs))
-        submit_button.pack(pady=20)
 
     def toggle_delete_button(self, table):    #未选中状态禁用删除功能
         # 获取选中的行
