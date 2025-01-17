@@ -42,7 +42,7 @@
 
 import numpy as np
 
-def log_fit_with_uncertainty(x_data, y_data,line_style='-', line_width=2, scatter_marker='o', scatter_color='blue', line_color='red'):
+def log_fit_with_uncertainty(x_data, y_data,line_style='-', line_width=2, scatter_marker='o', scatter_color='blue', line_color='red',x_value=None):
     import matplotlib.pyplot as plt
     from matplotlib import rcParams,font_manager
 
@@ -98,6 +98,13 @@ def log_fit_with_uncertainty(x_data, y_data,line_style='-', line_width=2, scatte
     plt.legend()
     plt.grid(True)
     plt.show()
+
+    if x_value is not None:#实例
+        if x_value <= 0:
+            raise ValueError("x_value must be greater than 0 for logarithmic calculation.")
+        y_value = a * np.log(x_value) + b
+        print(f"在 x = {x_value} 时，预测的 y 值为: {y_value:.2f}")
+        return a, b, y_uncertainty, y_value
 
     return a, b, y_uncertainty
 
