@@ -11,6 +11,7 @@ from tkinter import messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import rcParams
+from curve_fit import log_fit_with_uncertainty
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -215,13 +216,22 @@ class CorrosionDatabaseApp(ctk.CTk):
         label_pre=ctk.CTkLabel(table_print_frame,text="预测结果",font=("黑体",20))
         label_pre.grid(row=0,column=0,columnspan=2)
         # 创建Treeview控件用于展示表格
-        columns = ('时间','原始值','拟合值','偏差值','方程','腐蚀速率')
+        columns = ('时间','原始值','拟合值','偏差值','自定义1','自定义2')
         treeview2 = ttk.Treeview(table_print_frame, columns=columns, show='headings')
 
-        #treeview.insert('', 'end', values=(x,y))插入数据
         for col in columns:
             treeview2.heading(col,text=col,anchor='center')
             treeview2.column(col, width=40, anchor='center')
+
+        # 填充数据
+        data_demo = [
+            ("10", 100, 105, 5, None, None),
+            ("20", 98, 102, 4),
+            ("30", 105, 107, 2, "自定义值1", "自定义值2"),
+        ]
+        for row in data_demo:
+            treeview2.insert('', 'end', values=row)
+
         treeview2.grid(row=1, column=0, sticky="nsew")
         # 滚动条
         scrollbar4 = ttk.Scrollbar(table_print_frame, orient="vertical", command=treeview.yview)
@@ -296,10 +306,16 @@ class CorrosionDatabaseApp(ctk.CTk):
         def plotStyle_button_click():
             params = {'line_style': line_style_combobox.get(),  # 线条样式,
                       'line_width': line_width_combobox.get(),  # 线条宽度,
-                      'scatter_marker': mark_style_combobox.get(),  # 标记点样式,
+                      'scatter_marker': mark_style_combobox.get()[0],  # 标记点样式,
                       'scatter_color': color_point_combobox.get(),
                       'line_color': color_point_combobox.get()}
-            return params
+            import numpy as np
+            # 示例数据
+            x_data = np.array([0.5, 2, 3, 4, 5])  # 输入的氧化膜厚度或试样重量数据
+            y_data = np.array([2.1, 2.9, 3.7, 7.5, 8.0])  # 对应的时间数据
+            # 调用 log_fit_with_uncertainty 方法
+            coff = log_fit_with_uncertainty(x_data, y_data,params)
+            return params,coff
 
 
 
@@ -406,9 +422,9 @@ class CorrosionDatabaseApp(ctk.CTk):
         plot_button.pack(side="left", padx=5)
 
         #拟合作为调用，弹出界面显示图形
-        plot_button = ctk.CTkButton(button_under_frame, text="拟合",fg_color="#3366cc",text_color="white",font=("Arial",20),
+        fit_button = ctk.CTkButton(button_under_frame, text="拟合",fg_color="#3366cc",text_color="white",font=("Arial",20),
                                     width=100,height=40,command=lambda:print(plotStyle_button_click()))
-        plot_button.pack(side="left", padx=5)
+        fit_button.pack(side="left", padx=5)
 
         data_select_frame=ctk.CTkFrame(button_frame, fg_color="transparent")
         data_select_frame.pack(side="top", pady=5)

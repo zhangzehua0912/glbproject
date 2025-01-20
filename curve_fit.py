@@ -42,9 +42,14 @@
 
 import numpy as np
 
-def log_fit_with_uncertainty(x_data, y_data,line_style='-', line_width=2, scatter_marker='o', scatter_color='blue', line_color='red',x_value=None):
+def log_fit_with_uncertainty(x_data, y_data,params={},x_value=None):
     import matplotlib.pyplot as plt
     from matplotlib import rcParams,font_manager
+    line_style = params.get('line_style', '-')  # 默认值为 '-'
+    line_width = params.get('line_width', 2)  # 默认值为 2
+    scatter_marker = params.get('scatter_marker', 'o')  # 默认值为 'o'
+    scatter_color = params.get('scatter_color', 'blue')  # 默认值为 'blue'
+    line_color = params.get('line_color', 'red')  # 默认值为 'red'
 
     log_x = np.log(x_data)
     A = np.vstack([log_x, np.ones(len(log_x))]).T
@@ -111,10 +116,15 @@ def log_fit_with_uncertainty(x_data, y_data,line_style='-', line_width=2, scatte
 
 
 
-def fit_curve_multiple(x_data, y_data, n_fits=2,line_style='-', line_width=2, scatter_marker='o', scatter_color='blue', line_color='red'):
+def fit_curve_multiple(x_data, y_data, params,n_fits=2):
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import rcParams
+    line_style = params.get('line_style', '-')  # 默认值为 '-'
+    line_width = params.get('line_width', 2)  # 默认值为 2
+    scatter_marker = params.get('scatter_marker', 'o')  # 默认值为 'o'
+    scatter_color = params.get('scatter_color', 'blue')  # 默认值为 'blue'
+    line_color = params.get('line_color', 'red')  # 默认值为 'red'
     # 设置中文字体
     rcParams['font.sans-serif'] = ['SimHei']  # SimHei 是常见的中文字体
     rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
@@ -202,11 +212,16 @@ def residuals(params, x_data, y_data):
     return np.sum((y_data - y_fit)**2)
 
 # 拟合函数
-def tedmon_fit(x_data, y_data, r_init, xs_init, line_style='-', line_width=2, scatter_marker='o', scatter_color='blue',
-                line_color='red'):
+def tedmon_fit(x_data, y_data, params,r_init, xs_init):
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import rcParams
+
+    line_style = params.get('line_style', '-')  # 默认值为 '-'
+    line_width = params.get('line_width', 2)  # 默认值为 2
+    scatter_marker = params.get('scatter_marker', 'o')  # 默认值为 'o'
+    scatter_color = params.get('scatter_color', 'blue')  # 默认值为 'blue'
+    line_color = params.get('line_color', 'red')  # 默认值为 'red'
 
     # 设置中文字体
     rcParams['font.sans-serif'] = ['SimHei']  # SimHei 是常见的中文字体
