@@ -164,19 +164,26 @@ class CorrosionDatabaseApp(ctk.CTk):
         table_data_frame.grid_columnconfigure(0, weight=1)# 确保数据表格框架的列宽与父框架一致
 
         # 创建Treeview控件用于展示表格
-        columns = ('x', 'y')
-        treeview = ttk.Treeview(table_data_frame, columns=columns, show='headings')
+        columns_1 = ('x', 'y', 'xx', 'yy')  # 更新列定义，增加两列 xx 和 yy
+        treeview = ttk.Treeview(table_data_frame, columns=columns_1, show='headings')
         treeview.heading('x', text="X值")
         treeview.heading('y', text="Y值")
+        treeview.heading('xx', text="XX值")#第二组数据，不一定有
+        treeview.heading('yy', text="YY值")#第二组数据，不一定有
+        for col in columns_1:
+            treeview.column(col, width=40, anchor='center')
+
         treeview.grid(row=0, column=0, sticky="nsew")
         # 滚动条
         scrollbar3 = ttk.Scrollbar(table_data_frame, orient="vertical", command=treeview.yview)
         treeview.configure(yscrollcommand=scrollbar3.set)
         scrollbar3.grid(row=0, column=1, sticky="ns")
 
+        #数据插入部分
         for i in range(30): # 插入一些默认数据，Treeview控件本身不直接支持编辑单元格，但可以通过捕捉鼠标事件：当用户双击某个单元格时，创建一个 CTkEntry 小部件，覆盖在该单元格上，用于编辑。
             ## 完成编辑：当用户按下回车键或点击其他地方时，保存更改并更新 Treeview 的值。
-            treeview.insert('', 'end', values=(i, i ** 2))
+            treeview.insert('', 'end', values=(i, i ** 2, i * 2, i ** 3))  # 插入两组数据 (x, y, xx, yy)
+
 
         # 绑定双击事件
         def on_double_click(event):
@@ -258,7 +265,7 @@ class CorrosionDatabaseApp(ctk.CTk):
         x_1_label.pack(side="left", padx=5)
         x_max_entry = ctk.CTkEntry(x_range_frame, placeholder_text="max", width=80)
         x_max_entry.pack(side="left", padx=5)
-        x_gap_label=ctk.CTkLabel(x_range_frame,text="X轴间距:")
+        x_gap_label=ctk.CTkLabel(x_range_frame,text="X轴间隔数:")
         x_gap_label.pack(side="left", padx=10)
         x_gap_entry = ctk.CTkEntry(x_range_frame, placeholder_text="X间距", width=50)
         x_gap_entry.pack(side="left", padx=5)
@@ -274,7 +281,7 @@ class CorrosionDatabaseApp(ctk.CTk):
         y_1_label.pack(side="left", padx=5)
         y_max_entry = ctk.CTkEntry(y_range_frame, placeholder_text="max", width=80)
         y_max_entry.pack(side="left", padx=5)
-        y_gap_label = ctk.CTkLabel(y_range_frame, text="Y轴间距:")
+        y_gap_label = ctk.CTkLabel(y_range_frame, text="Y轴间隔数:")
         y_gap_label.pack(side="left", padx=10)
         y_gap_entry = ctk.CTkEntry(y_range_frame, placeholder_text="Y间距", width=50)
         y_gap_entry.pack(side="left", padx=5)
@@ -308,7 +315,7 @@ class CorrosionDatabaseApp(ctk.CTk):
                       'line_width': line_width_combobox.get(),  # 线条宽度,
                       'scatter_marker': mark_style_combobox.get()[0],  # 标记点样式,
                       'scatter_color': color_point_combobox.get(),
-                      'line_color': color_point_combobox.get()}
+                      'line_color': color_combobox.get()}
             import numpy as np
             # 示例数据
             x_data = np.array([0.5, 2, 3, 4, 5])  # 输入的氧化膜厚度或试样重量数据
@@ -325,7 +332,6 @@ class CorrosionDatabaseApp(ctk.CTk):
         button_frame.grid(row=2, column=0, padx=20, pady=20, sticky="nsew")
 
 
-
         # 初始化matplotlib图形
         self.canvas = tk.Canvas(plot_frame, width=900, height=100, bg="white")
         self.canvas.pack(fill="both", expand=True)
@@ -339,18 +345,39 @@ class CorrosionDatabaseApp(ctk.CTk):
             for row in treeview.get_children():
                 data.append(treeview.item(row)['values'])
             # 将数据转换为 DataFrame
-            df = pd.DataFrame(data, columns=['x', 'y'])
+            df = pd.DataFrame(data, columns=['x', 'y', 'xx', 'yy'])
             # 绘制曲线
             self.canvas.delete("all")  # 清除之前的绘图内容
-            width = 900     #绘图框宽度——改变量
-            height = 450    #绘图框高度——改变量
+            width = 900     #绘图框宽度——可选改变量
+            height = 450    #绘图框高度——可选改变量
             margin = 50 #页边距
-            x_grid=6    #x轴间距——改变量
-            y_grid=6    #y轴间距——改变量
 
-            # 数据归一化
-            x_min, x_max = df['x'].min(), df['x'].max()
-            y_min, y_max = df['y'].min(), df['y'].max()
+            # 获取用户输入的X轴范围，若没有输入，则使用数据的最小最大值
+            if x_min_entry.get() and x_max_entry.get():  # 如果用户输入了X轴的范围
+                x_min = float(x_min_entry.get())
+                x_max = float(x_max_entry.get())
+            else:  # 否则，使用数据中的最小值和最大值
+                x_min, x_max = min(df['x'].min(), df['xx'].min()), max(df['x'].max(), df['xx'].max())
+
+            # 获取用户输入的Y轴范围，若没有输入，则使用数据的最小最大值
+            if y_min_entry.get() and y_max_entry.get():  # 如果用户输入了Y轴的范围
+                y_min = float(y_min_entry.get())
+                y_max = float(y_max_entry.get())
+            else:  # 否则，使用数据中的最小值和最大值
+                y_min, y_max = min(df['y'].min(), df['yy'].min()), max(df['y'].max(), df['yy'].max())
+
+            # 获取用户输入的X轴间距，若没有输入，则使用默认值
+            if x_gap_entry.get():  # 如果用户输入了X轴间距
+                x_grid = int(x_gap_entry.get())
+            else:  # 否则，使用默认间距
+                x_grid = 5
+
+            if y_gap_entry.get():  # 如果用户输入了X轴间距
+                y_grid = int(y_gap_entry.get())
+            else:  # 否则，使用默认间距
+                y_grid = 5
+
+            #画布大小
             x_scale = (width - 2 * margin) / (x_max - x_min)
             y_scale = (height - 2 * margin) / (y_max - y_min)
 
@@ -362,21 +389,24 @@ class CorrosionDatabaseApp(ctk.CTk):
 
             # 绘制X轴刻度和标签
             for i in range(x_grid):
-                x_val = x_min + i * (x_max - x_min) / 5
+                x_val = x_min + i * (x_max - x_min) / x_grid
                 x_pos = margin + (x_val - x_min) * x_scale
                 self.canvas.create_line(x_pos, x_axis_y, x_pos, x_axis_y + 5)
                 self.canvas.create_text(x_pos, x_axis_y + 20, text=f"{x_val:.1f}")
 
             # 绘制Y轴刻度和标签
             for i in range(y_grid):
-                y_val = y_min + i * (y_max - y_min) / 5
+                y_val = y_min + i * (y_max - y_min) / y_grid
                 y_pos = height - margin - (y_val - y_min) * y_scale
                 self.canvas.create_line(y_axis_x - 5, y_pos, y_axis_x, y_pos)
                 self.canvas.create_text(y_axis_x - 20, y_pos, text=f"{y_val:.1f}")
 
+            prev_x = prev_y = None#初始化
+            prev_xx = prev_yy = None#初始化
+
             # 绘制曲线
-            prev_x = prev_y = None
             for _, row in df.iterrows():
+                # 绘制 (x, y) 曲线
                 x, y = row['x'], row['y']
                 canvas_x = margin + (x - x_min) * x_scale
                 canvas_y = height - margin - (y - y_min) * y_scale
@@ -384,6 +414,20 @@ class CorrosionDatabaseApp(ctk.CTk):
                 if prev_x is not None and prev_y is not None:
                     self.canvas.create_line(prev_x, prev_y, canvas_x, canvas_y, fill="blue")  # 连线
                 prev_x, prev_y = canvas_x, canvas_y
+                # 绘制 (xx, yy) 曲线
+                xx, yy = row['xx'], row['yy']
+                canvas_xx = margin + (xx - x_min) * x_scale
+                canvas_yy = height - margin - (yy - y_min) * y_scale
+                self.canvas.create_oval(canvas_xx - 2, canvas_yy - 2, canvas_xx + 2, canvas_yy + 2, fill="red")  # 数据点
+                if prev_xx is not None and prev_yy is not None:
+                    self.canvas.create_line(prev_xx, prev_yy, canvas_xx, canvas_yy, fill="red")  # 连线
+                prev_xx, prev_yy = canvas_xx, canvas_yy
+
+            # 为每条曲线添加标签（如 "x-y 曲线" 和 "xx-yy 曲线"）
+            self.canvas.create_text(width - margin, height - margin - 20, text="x-y 曲线", fill="blue",
+                                    font=("Arial", 10, "bold"))
+            self.canvas.create_text(width - margin, height - margin - 40, text="xx-yy 曲线", fill="red",
+                                    font=("Arial", 10, "bold"))
 
 
         def import_data():  #导入数据文件
@@ -442,8 +486,6 @@ class CorrosionDatabaseApp(ctk.CTk):
 
 
 
-
-###################################################下面是第三页的功能##########################################################
 
 
 
