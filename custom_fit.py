@@ -42,7 +42,7 @@
 
 import numpy as np
 
-def log_fit_with_uncertainty(x_data, y_data,params={},x_value=None):
+def log_fit_with_uncertainty(x_data, y_data,params,x_value=None):
     import matplotlib.pyplot as plt
     from matplotlib import rcParams,font_manager
     line_style = params.get('line_style', '-')  # 默认值为 '-'
@@ -68,7 +68,7 @@ def log_fit_with_uncertainty(x_data, y_data,params={},x_value=None):
 
     # 扩展 x 的范围，增加 20%
     x_min, x_max = np.min(x_data), np.max(x_data)
-    x_range = np.linspace(x_min - 0.1 * (x_max - x_min), x_max + 0.2 * (x_max - x_min), 800)  # 1000个点使得曲线更平滑
+    x_range = np.linspace(x_min - 0.1 * (x_max - x_min), x_max + 0.1 * (x_max - x_min), 800)  # 1000个点使得曲线更平滑
 
     # 确保 x_range 中的值大于 1e-10，避免计算对数时出错
     x_range = np.clip(x_range, 1e-10, None)  # 限制值为大于 1e-10
@@ -95,11 +95,11 @@ def log_fit_with_uncertainty(x_data, y_data,params={},x_value=None):
         x_range,
         y_fit_range - y_uncertainty_range,
         y_fit_range + y_uncertainty_range,
-        color='red', alpha=0.2, label="预测范围"
+        color='red', alpha=0.2, label="残差范围"
     )  # 绘制预测范围
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.title("预测")
+    plt.title("残差")
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -116,7 +116,7 @@ def log_fit_with_uncertainty(x_data, y_data,params={},x_value=None):
 
 
 
-def fit_curve_multiple(x_data, y_data, params,n_fits=2):
+def fit_curve_multiple(x_data, y_data, params,n_fits=2):#拟合次数不能大于数据量
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import rcParams
@@ -128,6 +128,10 @@ def fit_curve_multiple(x_data, y_data, params,n_fits=2):
     # 设置中文字体
     rcParams['font.sans-serif'] = ['SimHei']  # SimHei 是常见的中文字体
     rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+    # 检查数据点数目与拟合次数的关系
+    if len(y_data) <= n_fits:
+        raise ValueError("数据点数目应大于拟合的多项式次数")
 
     plt.figure(figsize=(8, 6))
     plt.scatter(x_data, y_data, label="数据点", color=scatter_color, marker=scatter_marker)  # 原始数据
@@ -144,7 +148,7 @@ def fit_curve_multiple(x_data, y_data, params,n_fits=2):
 
     # 扩展x的范围，增加20%的范围
     x_min, x_max = np.min(x_data), np.max(x_data)
-    x_range = np.linspace(x_min - 0.2 * (x_max - x_min), x_max + 0.2 * (x_max - x_min), 800)  # 1000个点使得曲线更平滑
+    x_range = np.linspace(x_min - 0.1 * (x_max - x_min), x_max + 0.1 * (x_max - x_min), 800)  # 1000个点使得曲线更平滑
     y_fit_range = np.polyval(coeffs, x_range)  # 计算拟合值
 
     # 计算拟合的不确定度 (不适用过度复杂的置信区间计算)
@@ -181,19 +185,18 @@ def fit_curve_multiple(x_data, y_data, params,n_fits=2):
     plt.plot(x_range, y_fit_range, label=label,color=line_color, linestyle=line_style, linewidth=line_width)
 
     # 绘制预测范围
-    plt.fill_between(x_range, y_fit_range - y_uncertainty, y_fit_range + y_uncertainty, color='red', alpha=0.2, label="预测范围")
-
+    plt.fill_between(x_range, y_fit_range - y_uncertainty, y_fit_range + y_uncertainty, color='red', alpha=0.2, label="残差")
 
 
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.title(f"预测")
+    plt.title(f"残差")
     plt.legend(fontsize=10)
     plt.grid(True)
 
     plt.show()
 
-    return coeff
+    return coeffs
 
 
 
@@ -295,7 +298,7 @@ def tedmon_fit(x_data, y_data, params,r_init, xs_init):
 
     # 绘制预测范围
     plt.fill_between(x_range, y_fit_range - y_uncertainty_range, y_fit_range + y_uncertainty_range, color='red',
-                     alpha=0.2, label="预测范围")
+                     alpha=0.2, label="残差范围")
 
 
     plt.xlabel("x (氧化膜厚度或试样重量)")

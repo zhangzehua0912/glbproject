@@ -11,7 +11,7 @@ from tkinter import messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import rcParams
-from curve_fit import log_fit_with_uncertainty
+from custom_fit import log_fit_with_uncertainty
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")

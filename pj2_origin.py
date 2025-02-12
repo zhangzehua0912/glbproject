@@ -85,35 +85,37 @@ class CorrosionDatabaseApp(ctk.CTk):
                                       command=lambda: print("查询文献数据"))
         search_button.grid(row=0, column=4, padx=5)
 
+
+
         #table Frame
         table_frame = ctk.CTkTextbox(self.main_frame, width=800, height=400)
         table_frame.pack(pady=20,fill="both",expand=True)
 
         # 表格
         columns = ["文献类型", "标题", "作者", "期刊名称", "发布时间", "ISSN", "DOI", "URL","操作"]
-        table = ttk.Treeview(
+        table1 = ttk.Treeview(
             table_frame,
             columns=columns,
             show="headings",
             height=15,
         )
-        table.grid(row=0, column=0, sticky="nsew")
+        table1.grid(row=0, column=0, sticky="nsew")
 
         # 表格垂直滚动条
-        table_scroll = ttk.Scrollbar(table_frame, orient="vertical", command=table.yview)
+        table_scroll = ttk.Scrollbar(table_frame, orient="vertical", command=table1.yview)
         table_scroll.grid(row=0, column=1, sticky="ns")
 
         # 滚动条
-        table.configure(yscrollcommand=table_scroll.set)
+        table1.configure(yscrollcommand=table_scroll.set)
 
         # Set column headers and widths
         for col in columns:
             if col == "标题" or col == "DOI":
-                table.heading(col, text=col)
-                table.column(col, anchor="w", width=160)
+                table1.heading(col, text=col)
+                table1.column(col, anchor="w", width=160)
             else:
-                table.heading(col, text=col)
-                table.column(col, anchor="w", width=80)
+                table1.heading(col, text=col)
+                table1.column(col, anchor="w", width=80)
 
 
 
@@ -127,25 +129,39 @@ class CorrosionDatabaseApp(ctk.CTk):
 
         for row in sample_data:
             values = row[:-1]  # 不包括操作列
-            item_id = table.insert("", "end", values=values)
-            table.set(item_id, column="操作", value="双击查看")
+            item_id = table1.insert("", "end", values=values)
+            table1.set(item_id, column="操作", value="双击查看")
 
-        #在用户点击包含“查看”的列时，触发相应的逻辑。例如，点击“查看”列后跳转到 URL 或执行某个操作
+
+        #修改了改功能点击“查看”列后跳转到 URL 或执行某个操作
         # 添加双击跳转事件
         def table1_doubleclick(event):
-            selected_item = table.selection()
+            selected_item = table1.selection()
             if selected_item:  # 如果有选中的行
-                item = table.item(selected_item)
+                item = table1.item(selected_item)
                 values = item["values"]
-                if len(values) >= 9 and values[8] == "双击查看":
-                    url = values[7]  # 获取 激活行的URL
+
+                # 获取当前列的索引
+                col_id = table1.identify_column(event.x)
+
+                # 判断是点击的 URL 列还是“双击查看”列
+                if col_id == "#7":  # 如果点击的是 URL 列
+                    url = values[7]  # 获取 URL
                     print(f"跳转到 URL: {url}")
-                    # 实现web跳转功能
+                    # 实现 web 跳转功能
                     import webbrowser
                     webbrowser.open(url)
 
+                elif col_id == "#8":  # 如果点击的是 “双击查看” 列
+                    print("打开本地文件: xxxxx/xxxx/xxxxx")
+                    # 可以调用其他方法来打开本地文件，比如使用 os 或 subprocess
+                    import os
+                    file_path = "xxxxx/xxxx/xxxxx"  # 替换为实际文件路径
+                    # os.startfile(file_path)  # Windows 系统可以用这个方法打开文件
+                    print(file_path)
+
         # 双击实现查看，不容易添加按钮
-        table.bind("<Double-1>", table1_doubleclick)
+        table1.bind("<Double-1>", table1_doubleclick)
 
         # 页码导航
         nav_frame = ctk.CTkFrame(self.main_frame,fg_color="transparent")
@@ -235,6 +251,70 @@ class CorrosionDatabaseApp(ctk.CTk):
                                       command=lambda: print("查询试验数据"))
         search_button.grid(row=2, column=7, padx=5,pady=5)
 
+        def add1_data():
+            # 创建新的窗口用于输入数据
+            input_window = ctk.CTkToplevel()
+            input_window.title("新增数据")
+
+            # 设置窗口保持在最前面
+            input_window.attributes("-topmost", 1)
+
+            # 定义输入框标签和对应的输入框
+            labels = ["材料名称", "材料成分", "处理工艺", "试验时间", "试验温度", "试验压力", "试验流速", "氧浓度",
+                      "氧化膜厚度", "试样重量", "数据来源", "预留1", "预留2", "预留3"]
+
+            entries = {}
+            for i, label_text in enumerate(labels):
+                label = ctk.CTkLabel(input_window, text=label_text)
+                label.grid(row=i, column=0, padx=10, pady=5, sticky="e")
+
+                entry = ctk.CTkEntry(input_window, placeholder_text=f"请输入{label_text}")
+                entry.grid(row=i, column=1, padx=10, pady=5)
+                entries[label_text] = entry
+
+            # 提示标签，用于显示用户输入是否满足条件
+            prompt_label = ctk.CTkLabel(input_window, text="", text_color="red")
+            prompt_label.grid(row=len(labels), column=0, columnspan=2, pady=5)
+
+            # 提交按钮的处理
+            def submit():
+                # 获取所有输入框的值
+                new_data = [entries[label].get() for label in labels]
+
+                # 统计有数据输入的字段
+                valid_data_count = sum(1 for data in new_data if data.strip() != "")
+
+                if valid_data_count >= 4:
+                    # 如果输入的有效数据大于等于3个，提交数据
+                    table.insert("", "end", values=new_data)
+                    input_window.destroy()  # 关闭输入窗口
+                else:
+                    # 提示用户需要至少填写3个字段
+                    prompt_label.configure(text="请至少填写 4 个字段。")
+
+            submit_button = ctk.CTkButton(input_window, text="提交", command=submit)
+            submit_button.grid(row=len(labels) + 1, column=1, padx=10, pady=20)
+
+            input_window.mainloop()  # 启动新的窗口
+        def delete1_data():
+            from tkinter import messagebox
+            selected_item = table.selection()
+            # 弹出确认框
+            confirm = messagebox.askyesno("确认删除", "确定删除选中的数据吗？")
+            if confirm:
+                for item in selected_item:
+                    table.delete(item)  # 删除选中的行
+
+
+        #新增1
+        add_button2 = ctk.CTkButton(search_frame, text="新增数据", text_color="#000000",fg_color="#FFFFE0",hover_color="#FFFFF0",width=80,
+                                      command=add1_data)
+        add_button2.grid(row=2, column=3, padx=5,pady=5)
+        delete_button2 = ctk.CTkButton(search_frame, text="删除数据", text_color="#000000",fg_color="#F0FFFF",hover_color="#B7B7B7",width=80,state="disabled",
+                                      command=delete1_data)
+        delete_button2.grid(row=2, column=5, padx=5,pady=5)
+
+
         # 表格框架
         table_frame = ctk.CTkTextbox(self.main_frame, width=800, height=400)
         table_frame.pack(pady=20, fill="both", expand=True)
@@ -318,9 +398,11 @@ class CorrosionDatabaseApp(ctk.CTk):
             if selected_item:  # 如果有选中行
                 view_image_button.configure(state="normal")  # 激活“查看图片”按钮
                 view_data_button.configure(state="normal")  # 激活“查看数据”按钮
+                delete_button2.configure(state="normal") #
             else:
                 view_image_button.configure(state="disabled")  # 禁用“查看图片”按钮
                 view_data_button.configure(state="disabled")  # 禁用“查看数据”按钮
+                delete_button2.configure(state="disabled") # 禁用“删除数据”按钮
 
         # 绑定表格选中事件
         table.bind("<<TreeviewSelect>>", on_table2_select)
