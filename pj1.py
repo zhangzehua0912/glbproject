@@ -736,45 +736,77 @@ class CorrosionDatabaseApp(ctk.CTk):
         x_range_frame.pack(side="top", pady=5)
         x_range_label = ctk.CTkLabel(x_range_frame, text="X轴范围:")
         x_range_label.pack(side="left", padx=10)
-        x_min_entry = ctk.CTkEntry(x_range_frame, placeholder_text="min", width=80)
+        x_min_entry = ctk.CTkEntry(x_range_frame, placeholder_text="min", width=40)
         x_min_entry.pack(side="left", padx=5)
         x_1_label = ctk.CTkLabel(x_range_frame, text="-")
         x_1_label.pack(side="left", padx=5)
-        x_max_entry = ctk.CTkEntry(x_range_frame, placeholder_text="max", width=80)
+        x_max_entry = ctk.CTkEntry(x_range_frame, placeholder_text="max", width=40)
         x_max_entry.pack(side="left", padx=5)
         x_gap_label = ctk.CTkLabel(x_range_frame, text="X轴间隔数:")
         x_gap_label.pack(side="left", padx=10)
-        x_gap_entry = ctk.CTkEntry(x_range_frame, placeholder_text="X间距", width=50)
+        x_gap_entry = ctk.CTkEntry(x_range_frame, placeholder_text="X间距", width=40)
         x_gap_entry.pack(side="left", padx=5)
+
+        x_axis_width_label = ctk.CTkLabel(x_range_frame, text="x-边框粗细:")
+        x_axis_width_label.pack(side="left", padx=5)
+        x_axis_width_entry = ctk.CTkEntry(x_range_frame, placeholder_text="2", width=40)
+        x_axis_width_entry.pack(side="left", padx=5)
+
+        x_axis_labelsize_label = ctk.CTkLabel(x_range_frame, text="x轴-字号：")
+        x_axis_labelsize_label.pack(side="left", padx=5)
+        x_axis_labelsize_entry = ctk.CTkEntry(x_range_frame, placeholder_text="12", width=40)
+        x_axis_labelsize_entry.pack(side="left", padx=5)
+
+        x_axis_linedir = ctk.CTkLabel(x_range_frame, text="x-刻度方向：")
+        x_axis_linedir.pack(side="left", padx=5)
+        x_axis_linedir_combobox = ctk.CTkComboBox(x_range_frame, width=60, values=["in", "out", "inout"])
+        x_axis_linedir_combobox.pack(side="left", padx=5)
 
         # y轴范围和间距输入框
         y_range_frame = ctk.CTkFrame(setting_frame, fg_color="transparent")
         y_range_frame.pack(side="top", pady=5)
         y_range_label = ctk.CTkLabel(y_range_frame, text="Y轴范围:")
         y_range_label.pack(side="left", padx=10)
-        y_min_entry = ctk.CTkEntry(y_range_frame, placeholder_text="min", width=80)
+        y_min_entry = ctk.CTkEntry(y_range_frame, placeholder_text="min", width=40)
         y_min_entry.pack(side="left", padx=5)
         y_1_label = ctk.CTkLabel(y_range_frame, text="-")
         y_1_label.pack(side="left", padx=5)
-        y_max_entry = ctk.CTkEntry(y_range_frame, placeholder_text="max", width=80)
+        y_max_entry = ctk.CTkEntry(y_range_frame, placeholder_text="max", width=40)
         y_max_entry.pack(side="left", padx=5)
         y_gap_label = ctk.CTkLabel(y_range_frame, text="Y轴间隔数:")
         y_gap_label.pack(side="left", padx=10)
-        y_gap_entry = ctk.CTkEntry(y_range_frame, placeholder_text="Y间距", width=50)
+        y_gap_entry = ctk.CTkEntry(y_range_frame, placeholder_text="Y间距", width=40)
         y_gap_entry.pack(side="left", padx=5)
+
+        y_axis_width_label = ctk.CTkLabel(y_range_frame, text="y-边框粗细:")
+        y_axis_width_label.pack(side="left", padx=5)
+        y_axis_width_entry = ctk.CTkEntry(y_range_frame, placeholder_text="2", width=40)
+        y_axis_width_entry.pack(side="left", padx=5)
+
+        y_axis_labelsize_label = ctk.CTkLabel(y_range_frame, text="y轴-字号：")
+        y_axis_labelsize_label.pack(side="left", padx=5)
+        y_axis_labelsize_entry = ctk.CTkEntry(y_range_frame, placeholder_text="12", width=40)
+        y_axis_labelsize_entry.pack(side="left", padx=5)
+
+        y_axis_linedir = ctk.CTkLabel(y_range_frame, text="y-刻度方向：")
+        y_axis_linedir.pack(side="left", padx=5)
+        y_axis_linedir_combobox = ctk.CTkComboBox(y_range_frame, width=60, values=["in", "out", "inout"])
+        y_axis_linedir_combobox.pack(side="left", padx=5)
+
+
 
         # 曲线参数
         cur_setting_frame = ctk.CTkFrame(setting_frame, fg_color="transparent")
         cur_setting_frame.pack(side="top", pady=5)
         color_label = ctk.CTkLabel(cur_setting_frame, text="线条颜色：")
         color_label.pack(side="left", padx=5)
-        color_combobox = ctk.CTkComboBox(cur_setting_frame, width=80,
+        color_combobox = ctk.CTkComboBox(cur_setting_frame, width=60,
                                          values=["black", "red", "blue", "green", "yellow", "purple", "orange", "pink",
                                                  "cyan", "magenta"])
         color_combobox.pack(side="left", padx=5)
         line_style_label = ctk.CTkLabel(cur_setting_frame, text="线条样式：")
         line_style_label.pack(side="left", padx=5)
-        line_style_combobox = ctk.CTkComboBox(cur_setting_frame, width=80, values=["-", "--", "-.", ":"])
+        line_style_combobox = ctk.CTkComboBox(cur_setting_frame, width=60, values=["-", "--", "-.", ":"])
         line_style_combobox.pack(side="left", padx=5)
         mark_style_label = ctk.CTkLabel(cur_setting_frame, text="标记点样式：")
         mark_style_label.pack(side="left", padx=5)
@@ -785,15 +817,21 @@ class CorrosionDatabaseApp(ctk.CTk):
         mark_style_combobox.pack(side="left", padx=5)
         line_width_label = ctk.CTkLabel(cur_setting_frame, text="线条粗细：")
         line_width_label.pack(side="left", padx=5)
-        line_width_combobox = ctk.CTkComboBox(cur_setting_frame, width=80,
+        line_width_combobox = ctk.CTkComboBox(cur_setting_frame, width=60,
                                               values=["1", "1.5", "2", "2.5", "3", "4", "5", "6", "7", "8", "9", "10"])
         line_width_combobox.pack(side="left", padx=5)
         color_point_label = ctk.CTkLabel(cur_setting_frame, text="点颜色：")
         color_point_label.pack(side="left", padx=5)
-        color_point_combobox = ctk.CTkComboBox(cur_setting_frame, width=80,
+        color_point_combobox = ctk.CTkComboBox(cur_setting_frame, width=60,
                                                values=["black", "red", "blue", "green", "yellow", "purple", "orange",
                                                        "pink", "cyan", "magenta"])
         color_point_combobox.pack(side="left", padx=5)
+
+        more_button = ctk.CTkButton(cur_setting_frame, width=30,text="MORE")
+        more_button.pack(side="left", padx=5)
+
+
+
 
         def plotStyle_button_click():
             params = {'line_style': line_style_combobox.get(),  # 线条样式,
@@ -806,7 +844,8 @@ class CorrosionDatabaseApp(ctk.CTk):
             x_data = np.array([0.5, 2, 3, 4, 5])  # 输入的氧化膜厚度或试样重量数据
             y_data = np.array([2.1, 2.9, 3.7, 7.5, 8.0])  # 对应的时间数据
             # 调用 log_fit_with_uncertainty 方法
-            coff = log_fit_with_uncertainty(x_data, y_data, params)
+            # coff = log_fit_with_uncertainty(x_data, y_data, params)
+            coff= fit_curve_multiple(x_data, y_data, params)
             return params, coff
 
         # 左下部分 - 按钮位置
@@ -937,26 +976,25 @@ class CorrosionDatabaseApp(ctk.CTk):
         clear_button.pack(side="left", padx=5)
         plot_button = ctk.CTkButton(button_under_frame, text="绘图\刷新", fg_color="#508e54", text_color="yellow",
                                     font=("Arial", 20),
-                                    width=100, height=40, command=plot_curve)
+                                    width=100, height=30, command=plot_curve)
         plot_button.pack(side="left", padx=5)
 
-        # 拟合作为调用，弹出界面显示图形
-        fit_button = ctk.CTkButton(button_under_frame, text="拟合", fg_color="#3366cc", text_color="white",
-                                   font=("Arial", 20),
-                                   width=100, height=40, command=lambda: print(plotStyle_button_click()))
-        fit_button.pack(side="left", padx=5)
+
 
         data_select_frame = ctk.CTkFrame(button_frame, fg_color="transparent")
         data_select_frame.pack(side="top", pady=5)
         # 数据选择（预留），当有多列数据时候，需要选择以哪两列为xy轴时使用的
-        xdata = ["X", "Y"]  # 变量更新
-        ydata = ["X", "Y"]  # 变量更新
-        data_choose_label = ctk.CTkLabel(data_select_frame, text="数据选择X-Y:")
+        sele_type = ["X-X-Y多因素回归", "X-Y单因素拟合"]  # 变量更新
+        data_choose_label = ctk.CTkLabel(data_select_frame, text="拟合方式:")
         data_choose_label.pack(side="left", padx=10)
-        xdata_combobox = ctk.CTkComboBox(data_select_frame, width=80, values=xdata)
-        xdata_combobox.pack(side="left", padx=5)
-        ydata_combobox = ctk.CTkComboBox(data_select_frame, width=80, values=ydata)
-        ydata_combobox.pack(side="left", padx=5)
+        data_combobox = ctk.CTkComboBox(data_select_frame, width=180,font=("Arial", 14, "bold"),values=sele_type)
+        data_combobox.pack(side="left", padx=5)
+        # 拟合作为调用，弹出界面显示图形
+        fit_button = ctk.CTkButton(data_select_frame, text="拟合", fg_color="#3366fc", text_color="white",
+                                   font=("Arial", 20),
+                                   width=100, height=30, command=lambda: print(plotStyle_button_click()))
+        fit_button.pack(side="left", padx=5)
+
 
         # 预测结果数据，再增加按钮，进行连接
 

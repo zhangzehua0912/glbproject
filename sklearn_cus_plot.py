@@ -8,10 +8,29 @@ matplotlib.rcParams['font.sans-serif'] = ['SimHei']  # 使用黑体
 matplotlib.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
 
+x_values = np.linspace(1, 20, 500)
+
+# 使用二次函数计算y值
+y_values = 2 * x_values ** 2 + 3 * x_values + 2
+
+# 设置噪声的标准差（可以根据需要调整）
+noise_std = 12
+
+# 生成噪声并添加到y值中
+noise = np.random.normal(0, noise_std, size=x_values.shape)
+
+y_noisy_values = y_values + noise
+
+# 如果需要将数据点转换为列表格式
+x_list = x_values.tolist()
+y_list = y_noisy_values.tolist()
+
 # 示例数据（列表格式）
 X = [45, 56, 67, 78, 89]
 Y = [23, 34, 45, 56, 67]
 
+X = x_list
+Y = y_list
 # 将列表转换为 NumPy 数组（确保兼容性）
 X = np.array(X).reshape(-1, 1)
 y = np.array(Y)
@@ -84,7 +103,7 @@ y_fit = models[model_names.index(best_model_name)](x_line.flatten(), *best_param
 if best_model_name == '线性':
     func_str = f'{best_model_name}: y = {best_params[0]:.2f}X + {best_params[1]:.2f}'
 elif best_model_name == '二次多项式':
-    func_str = f'{best_model_name}: y = {best_params[0]:.2f}X² + {best_params[1]:.2f}X + {best_params[2]:.2f}'
+    func_str = f'{best_model_name}: y = {best_params[0]:.2f}X^2 + {best_params[1]:.2f}X + {best_params[2]:.2f}'
 elif best_model_name == '指数':
     func_str = f'{best_model_name}: y = {best_params[0]:.2f}e^({best_params[1]:.2f}X)'
 elif best_model_name == '对数':

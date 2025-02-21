@@ -1,44 +1,3 @@
-"""
-    对给定的数据进行对数拟合，并绘制拟合曲线及预测范围。
-    log_fit_with_uncertainty
-    对数拟合
-    # 通过最小二乘法拟合 y = a * log(x) + b
-    参数:
-    - x_data: 自变量数组
-    - y_data: 因变量数组
-
-    返回:
-    - (a, b): 对数拟合的参数
-
-
-    fit_curve_multiple    多项式拟合
-    参数：
-    - x_data,自变量数组
-    - y_data, 因变量数组
-    - n_fits=2, 拟合次数
-    - line_style='-', 线条样式
-    - line_width=2,  线条宽度
-    - scatter_marker='o', 点样式
-    - scatter_color='blue',点颜色
-    - line_color='red' 线颜色
-
-    tedmonf_fit    tedmon拟合
-    参数：
-    - x_data,自变量数组
-    - y_data, 因变量数组
-    - r_init, r的初始值
-    - xs_init, xs的初始值
-    - line_style='-', 线条样式
-    - line_width=2,  线条宽度
-    - scatter_marker='o', 点样式
-    - scatter_color='blue',点颜色
-    - line_color='red' 线颜色
-    """
-
-    #
-
-
-
 
 import numpy as np
 
@@ -50,13 +9,19 @@ def log_fit_with_uncertainty(x_data, y_data,params,x_value=None):
     scatter_marker = params.get('scatter_marker', 'o')  # 默认值为 'o'
     scatter_color = params.get('scatter_color', 'blue')  # 默认值为 'blue'
     line_color = params.get('line_color', 'red')  # 默认值为 'red'
+    axis_width = params.get('x_axis_width',2)
+    tick_direction = params.get('tick_direction','in')
+    tick_labelsize=params.get('tick_labelsize',12)
 
-    log_x = np.log(x_data)
-    A = np.vstack([log_x, np.ones(len(log_x))]).T
-    a, b = np.linalg.lstsq(A, y_data, rcond=None)[0]
+    b_init = 1.0
+    c_init = 0.0
+    transformed_x = b_init * x_data + c_init
+    A = np.vstack([np.log(transformed_x), np.ones(len(transformed_x))]).T
+    a, d = np.linalg.lstsq(A, y_data, rcond=None)[0]
+
 
     # 计算拟合值
-    y_fit = a * log_x + b
+    y_fit = a * np.log(transformed_x) + d
 
     # 计算标准误差
     residuals = y_data - y_fit
@@ -64,7 +29,7 @@ def log_fit_with_uncertainty(x_data, y_data,params,x_value=None):
     perr = s * np.sqrt(np.linalg.inv(A.T @ A).diagonal())  # 标准误差
 
     # 计算预测的不确定度
-    y_uncertainty = np.sqrt(perr[0]**2 * (np.log(x_data)**2) + perr[1]**2)
+    y_uncertainty = np.sqrt(perr[0]**2 * (np.log(transformed_x)**2) + perr[1]**2)
 
     # 扩展 x 的范围，增加 20%
     x_min, x_max = np.min(x_data), np.max(x_data)
@@ -72,15 +37,15 @@ def log_fit_with_uncertainty(x_data, y_data,params,x_value=None):
 
     # 确保 x_range 中的值大于 1e-10，避免计算对数时出错
     x_range = np.clip(x_range, 1e-10, None)  # 限制值为大于 1e-10
-    log_x_range = np.log(x_range)
+    transformed_x_range = b_init * x_range + c_init
 
     # 计算扩展范围的拟合值
-    y_fit_range = a * log_x_range + b
+    y_fit_range = a * np.log(transformed_x_range) + d
 
 
 
     # 计算扩展范围的预测不确定度
-    y_uncertainty_range = np.sqrt(perr[0] ** 2 * (np.log(x_range) ** 2) + perr[1] ** 2)
+    y_uncertainty_range = np.sqrt(perr[0] ** 2 * (np.log(transformed_x_range) ** 2) + perr[1] ** 2)
 
     # 设置中文字体（根据你的操作系统调整字体路径）
     rcParams['font.sans-serif'] = ['SimHei']  # SimHei 是常见的中文字体
@@ -89,8 +54,8 @@ def log_fit_with_uncertainty(x_data, y_data,params,x_value=None):
     # 绘制结果
     plt.figure(figsize=(8, 6))
     plt.scatter(x_data, y_data, label="数据点", color=scatter_color, marker=scatter_marker)  # 原始数据
-    plt.plot(x_range, y_fit_range, label=f"拟合曲线: y = {a:.2f}*ln(x) + {b:.2f}", color=line_color,
-             linestyle=line_style, linewidth=line_width)  # 拟合曲线
+    plt.plot(x_range, y_fit_range, label=f"拟合曲线: y = {a:.2f}*ln({b_init}x+{c_init}) + {d:.2f}",
+             color=line_color, linestyle=line_style, linewidth=line_width)  # 拟合曲线
     plt.fill_between(
         x_range,
         y_fit_range - y_uncertainty_range,
@@ -99,8 +64,17 @@ def log_fit_with_uncertainty(x_data, y_data,params,x_value=None):
     )  # 绘制预测范围
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.title("残差")
+    plt.title("拟合图")
     plt.legend()
+    # 在显示的图形中进行调整
+    ax = plt.gca()  # 获取当前坐标轴
+    ax.spines['top'].set_linewidth(axis_width)  # 设置上边框的宽度
+    ax.spines['right'].set_linewidth(axis_width)  # 设置右边框的宽度
+    ax.spines['bottom'].set_linewidth(axis_width)  # 设置下边框的宽度
+    ax.spines['left'].set_linewidth(axis_width)  # 设置左边框的宽度
+
+    # 调整刻度线宽
+    plt.tick_params(axis='both', which='both', width=2, direction=tick_direction, labelsize=tick_labelsize)  # labelsize=12：控制刻度标签的字体大小
     plt.grid(True)
     plt.show()
 
@@ -108,10 +82,10 @@ def log_fit_with_uncertainty(x_data, y_data,params,x_value=None):
         if x_value <= 0:
             raise ValueError("x_value must be greater than 0 for logarithmic calculation.")
         y_value = a * np.log(x_value) + b
-        print(f"在 x = {x_value} 时，预测的 y 值为: {y_value:.2f}")
-        return a, b, y_uncertainty, y_value
+        print(f"在 x = {x_value} 时，拟合的 y 值为: {y_value:.2f}")
+        return a, b_init, c_init, d, y_uncertainty, y_value
 
-    return a, b, y_uncertainty
+    return a, b_init, c_init, d, y_uncertainty
 
 
 
@@ -125,9 +99,15 @@ def fit_curve_multiple(x_data, y_data, params,n_fits=2):#拟合次数不能大�
     scatter_marker = params.get('scatter_marker', 'o')  # 默认值为 'o'
     scatter_color = params.get('scatter_color', 'blue')  # 默认值为 'blue'
     line_color = params.get('line_color', 'red')  # 默认值为 'red'
+    axis_width = params.get('x_axis_width', 2)
+    tick_direction = params.get('tick_direction', 'in')
+    tick_labelsize = params.get('tick_labelsize', 12)
     # 设置中文字体
     rcParams['font.sans-serif'] = ['SimHei']  # SimHei 是常见的中文字体
+    rcParams['font.family'] = 'sans-serif'  # 确保使用 sans-serif 字体系列
     rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+
 
     # 检查数据点数目与拟合次数的关系
     if len(y_data) <= n_fits:
@@ -190,8 +170,18 @@ def fit_curve_multiple(x_data, y_data, params,n_fits=2):#拟合次数不能大�
 
     plt.xlabel("X")
     plt.ylabel("Y")
-    plt.title(f"残差")
+    plt.title(f"拟合图")
     plt.legend(fontsize=10)
+    # 在显示的图形中进行调整
+    ax = plt.gca()  # 获取当前坐标轴
+    ax.spines['top'].set_linewidth(axis_width)  # 设置上边框的宽度
+    ax.spines['right'].set_linewidth(axis_width)  # 设置右边框的宽度
+    ax.spines['bottom'].set_linewidth(axis_width)  # 设置下边框的宽度
+    ax.spines['left'].set_linewidth(axis_width)  # 设置左边框的宽度
+    #
+    # # 调整刻度线宽
+    plt.tick_params(axis='both', which='both', width=2, direction=tick_direction,
+                    labelsize=tick_labelsize)  # labelsize=12：控制刻度标签的字体大小
     plt.grid(True)
 
     plt.show()
@@ -225,9 +215,13 @@ def tedmon_fit(x_data, y_data, params,r_init, xs_init):
     scatter_marker = params.get('scatter_marker', 'o')  # 默认值为 'o'
     scatter_color = params.get('scatter_color', 'blue')  # 默认值为 'blue'
     line_color = params.get('line_color', 'red')  # 默认值为 'red'
+    axis_width = params.get('x_axis_width', 2)
+    tick_direction = params.get('tick_direction', 'in')
+    tick_labelsize = params.get('tick_labelsize', 12)
 
     # 设置中文字体
     rcParams['font.sans-serif'] = ['SimHei']  # SimHei 是常见的中文字体
+    rcParams['font.family'] = 'sans-serif'  # 确保使用 sans-serif 字体系列
     rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
     # 梯度下降法拟合
@@ -272,8 +266,6 @@ def tedmon_fit(x_data, y_data, params,r_init, xs_init):
     except np.linalg.LinAlgError:
         perr = np.full(A.shape[1], np.inf)  # 发生错误时返回无穷大
 
-        # 计算预测的不确定度
-    y_uncertainty = np.sqrt(perr[0] ** 2 * (np.log(x_data) ** 2) + perr[1] ** 2)
 
     # 扩展x的范围，增加5%
     x_min, x_max = np.min(x_data), np.max(x_data)
@@ -305,6 +297,16 @@ def tedmon_fit(x_data, y_data, params,r_init, xs_init):
     plt.ylabel("t (时间)")
     plt.title(f"Tedmon 方程拟合")
     plt.legend(fontsize=10)
+    # 在显示的图形中进行调整
+    ax = plt.gca()  # 获取当前坐标轴
+    ax.spines['top'].set_linewidth(axis_width)  # 设置上边框的宽度
+    ax.spines['right'].set_linewidth(axis_width)  # 设置右边框的宽度
+    ax.spines['bottom'].set_linewidth(axis_width)  # 设置下边框的宽度
+    ax.spines['left'].set_linewidth(axis_width)  # 设置左边框的宽度
+
+    # 调整刻度线宽
+    plt.tick_params(axis='both', which='both', width=2, direction=tick_direction,
+                    labelsize=tick_labelsize)  # labelsize=12：控制刻度标签的字体大小
     plt.grid(True)
     plt.show()
 
